@@ -85,7 +85,7 @@ Creating environments and installing packages is beyond the scope of this tutori
 
 Git is a version control system that allows you to track changes in your code as well. It is widely used in the scientific community and is essential for collaborative work. We will use Git to manage our code. In particular, we will use GitHub, a platform that hosts Git repositories.
 
-> *Exercise*: Create a GitHub account. Setup your GitHub keys on subMIT. Fork this repository (https://github.com/anjabeck/IAP2026). Log into submit and clone the repository into your submit home. After finishing the first task [see here](explorations), push your changes to your fork. Navigate to the repository on GitHub's website and check that the changes are there. You will need the following commands for this: `git clone`, `git add`, `git commit`, and `git push` and you can have detailed introduction on the HSF websites [here](https://hsf-training.github.io/analysis-essentials/git/README.html).
+> *Exercise*: Create a GitHub account. Setup your GitHub keys on subMIT. Fork this repository (https://github.com/anjabeck/IAP2026). Log into submit and clone the repository into your submit home. After finishing the first task [see here](explorations/plotter.py), push your changes to your fork. Navigate to the repository on GitHub's website and check that the changes are there. You will need the following commands for this: `git clone`, `git add`, `git commit`, and `git push` and you can have detailed introduction on the HSF websites [here](https://hsf-training.github.io/analysis-essentials/git/README.html).
 
 ### Personal Website on subMIT
 
