@@ -15,6 +15,13 @@ treename = "B02KstMuMu_Run1_centralQ2E_sig"
 with uproot.open(filename) as f:
     df = f[treename].arrays(library="pd")
 
+# apply signal-side cuts
+df = df[
+    df["q2"].between(1.1, 7.0) &
+    df["mKpi"].between(0.65, 1.5)
+]
+
+
 
 #generated background
 with uproot.open("../genbkg/generated_data.root") as f:
@@ -23,8 +30,16 @@ with uproot.open("../genbkg/generated_data.root") as f:
 #fixed units
 df_bkg["B_mass"] *= 1000.0
 
+#same cuts on background
+df_bkg = df_bkg[
+    df_bkg["q2"].between(1.1, 7.0) &
+    df_bkg["mKpi"].between(0.65, 1.5)
+]
+
+
+
 #combined the data
-mass = zfit.Space("B_mass", limits=(5200, 5600))
+mass = zfit.Space("B_mass", limits=(5200, 5500))
 combined_mass = np.concatenate([df["B_mass"], df_bkg["B_mass"]])
 data = zfit.Data.from_numpy(obs=mass, array=combined_mass)
 
@@ -34,11 +49,11 @@ mu = zfit.Parameter("mu", 5280.0, 5200.0, 5400.0)
 
 sigmal = zfit.Parameter("sigmal", 20.0, 5.0, 80.0)
 alphal = zfit.Parameter("alphal", 1.5, 0.1, 5.0)
-nl     = zfit.Parameter("nl", 8.0, 0.5, 50.0)
+nl     = zfit.Parameter("nl", 1.0, 0.5, 50.0)
 
 sigmar = zfit.Parameter("sigmar", 25.0, 5.0, 80.0)
 alphar = zfit.Parameter("alphar", 2.0, 0.1, 5.0)
-nr     = zfit.Parameter("nr", 8.0, 0.5, 50.0)
+nr     = zfit.Parameter("nr", 1.0, 0.5, 50.0)
 
 pdf_sig = zfit.pdf.GeneralizedCB(mu, sigmal, alphal, nl, sigmar, alphar, nr, obs=mass)
 
@@ -54,6 +69,27 @@ pdf_bkg_ext = pdf_bkg.create_extended(Nbkg)
 
 
 model = zfit.pdf.SumPDF([pdf_sig_ext, pdf_bkg_ext])
+
+#checking for NaNs
+
+vals_sig = pdf_sig.pdf(data).numpy()
+vals_bkg = pdf_bkg.pdf(data).numpy()
+
+print("Signal PDF check:")
+print("  min =", np.min(vals_sig))
+print("  NaNs =", np.isnan(vals_sig).sum())
+print("  infs =", np.isinf(vals_sig).sum())
+
+print("Background PDF check:")
+print("  min =", np.min(vals_bkg))
+print("  NaNs =", np.isnan(vals_bkg).sum())
+print("  infs =", np.isinf(vals_bkg).sum())
+
+
+
+print("Signal log-PDF NaNs:", np.isnan(np.log(vals_sig)).sum())
+print("Background log-PDF NaNs:", np.isnan(np.log(vals_bkg)).sum())
+
 
 #fit
 loss = zfit.loss.ExtendedUnbinnedNLL(model=model, data=data)
