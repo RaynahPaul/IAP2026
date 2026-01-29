@@ -8,7 +8,8 @@ np.random.seed(0)
 zfit.settings.set_seed(0)
 zfit.settings.set_verbosity(5)
 
-filename = '/ceph/submit/data/user/a/anbeck/B2KPiMM_michele/full.root'
+#filename = '/ceph/submit/data/user/a/anbeck/B2KPiMM_michele/full.root'
+filename = "/home/submit/raynahp/IAP2026/data/full.root"
 treename = "B02KstMuMu_Run1_centralQ2E_sig"
 #open files 
 #signal data
@@ -53,24 +54,26 @@ nl     = zfit.Parameter("nl", 1.0, 0.5, 50.0)
 
 sigmar = zfit.Parameter("sigmar", 25.0, 5.0, 80.0)
 alphar = zfit.Parameter("alphar", 2.0, 0.1, 5.0)
-nr     = zfit.Parameter("nr", 1.0, 0.5, 50.0)
+nr     = zfit.Parameter("nr", 0.3, 0.0, 50.0)
 
 pdf_sig = zfit.pdf.GeneralizedCB(mu, sigmal, alphal, nl, sigmar, alphar, nr, obs=mass)
 
-Nsig = zfit.Parameter("Nsig", 20000, 0.0, 1.0e8)
+Nsig = zfit.Parameter("Nsig", 2000000, 0.0, 1.0e8)
 pdf_sig_ext = pdf_sig.create_extended(Nsig)
 
 #extended background PDF: Exponential
 lam = zfit.Parameter("lambda", -0.001, -1.0, 0.0)
 pdf_bkg = zfit.pdf.Exponential(obs=mass, lam=lam)
 
-Nbkg = zfit.Parameter("Nbkg", 50000, 0.0, 1.0e8)
+Nbkg = zfit.Parameter("Nbkg", 5000000, 0.0, 1.0e8)
 pdf_bkg_ext = pdf_bkg.create_extended(Nbkg)
 
 
 model = zfit.pdf.SumPDF([pdf_sig_ext, pdf_bkg_ext])
 
-#checking for NaNs
+# -------------------------
+# Sanity check: NaNs / infs
+# -------------------------
 
 vals_sig = pdf_sig.pdf(data).numpy()
 vals_bkg = pdf_bkg.pdf(data).numpy()
@@ -95,12 +98,14 @@ print("Background log-PDF NaNs:", np.isnan(np.log(vals_bkg)).sum())
 loss = zfit.loss.ExtendedUnbinnedNLL(model=model, data=data)
 minimizer = zfit.minimize.Minuit()
 
+
+
 result = minimizer.minimize(loss)
-result.errors()
+
 
 print(result)
 
-
+result.errors()
 
 out = {}
 for p in result.params:
@@ -141,3 +146,7 @@ plt.legend()
 plt.tight_layout()
 plt.savefig("mass_fit_generalizedCB.pdf")
 plt.close()
+
+
+
+
